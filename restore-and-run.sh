@@ -10,7 +10,7 @@ if [[ -n "${NEO4J_RESTORE_DUMP_URL:-}" ]]; then
     echo ">>> Downloading dump..."
     curl -fsSL "$NEO4J_RESTORE_DUMP_URL" -o "/tmp/${DB_NAME}.dump"
     echo ">>> Loading dump..."
-    neo4j-admin database load "$DB_NAME" --from="/tmp/${DB_NAME}.dump" --overwrite-destination=true
+    neo4j-admin database load "$DB_NAME" --from-path="/tmp" --overwrite-destination=true
     echo ">>> Restore completed"
   else
     echo ">>> Database ${DB_NAME} present; skipping restore (set NEO4J_FORCE_RESTORE=true to overwrite)"
