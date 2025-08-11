@@ -1,5 +1,5 @@
 # Use the official Neo4j image for importing data
-FROM neo4j:5 as neo4j-import
+FROM neo4j:2025.05.0 as neo4j-import
 
 # Set environment variables
 ARG NODE_CSV_URLS=""
@@ -107,7 +107,7 @@ RUN files_exist=false && \
 
 # Second stage for running Neo4j with the preloaded data
 
-FROM neo4j:5
+FROM neo4j:2025.05.0
 
 ARG DB_PASSWORD=""
 ARG HEAP_INITIAL_SIZE="1g"
