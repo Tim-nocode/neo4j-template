@@ -128,19 +128,15 @@ RUN echo "PAGECACHE_SIZE=${PAGECACHE_SIZE}"
 # Use the preloaded database from the import stage
 COPY --from=neo4j-import /data /data
 
-
-
 COPY neo4j.conf /var/lib/neo4j/conf/neo4j.conf
 COPY server-logs.xml /var/lib/neo4j/conf/server-logs.xml
 COPY user-logs.xml /var/lib/neo4j/conf/server-logs.xml
 
-# Create a script to update Neo4j configuration with environment variables
+# Script to update Neo4j config
 RUN echo '#!/bin/bash\n\
-# Remove all existing memory configuration lines (including comments)\n\
 sed -i "/server.memory.heap.initial_size/d" /var/lib/neo4j/conf/neo4j.conf\n\
 sed -i "/server.memory.heap.max_size/d" /var/lib/neo4j/conf/neo4j.conf\n\
 sed -i "/server.memory.pagecache.size/d" /var/lib/neo4j/conf/neo4j.conf\n\
-# Add new memory configuration at the end of the file\n\
 echo "" >> /var/lib/neo4j/conf/neo4j.conf\n\
 echo "# Memory configuration from environment variables" >> /var/lib/neo4j/conf/neo4j.conf\n\
 echo "server.memory.heap.initial_size=${HEAP_INITIAL_SIZE}" >> /var/lib/neo4j/conf/neo4j.conf\n\
@@ -148,11 +144,15 @@ echo "server.memory.heap.max_size=${HEAP_MAX_SIZE}" >> /var/lib/neo4j/conf/neo4j
 echo "server.memory.pagecache.size=${PAGECACHE_SIZE}" >> /var/lib/neo4j/conf/neo4j.conf\n\
 echo "Neo4j configuration updated with environment variables"' > /update-config.sh && chmod +x /update-config.sh
 
-# Run the update script before starting Neo4j
 RUN /update-config.sh
+
+# ======== ДОбавляем скрипт восстановления из дампа ========
+COPY restore-and-run.sh /usr/local/bin/restore-and-run.sh
+RUN chmod +x /usr/local/bin/restore-and-run.sh
 
 # Expose Neo4j ports
 EXPOSE 7474 7687
 
-# Run Neo4j
-CMD ["neo4j"]
+# Start Neo4j via restore script
+CMD ["/usr/local/bin/restore-and-run.sh"]
+
