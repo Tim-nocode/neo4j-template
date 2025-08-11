@@ -131,7 +131,7 @@ COPY --from=neo4j-import /data /data
 
 COPY neo4j.conf /var/lib/neo4j/conf/neo4j.conf
 COPY server-logs.xml /var/lib/neo4j/conf/server-logs.xml
-COPY user-logs.xml /var/lib/neo4j/conf/server-logs.xml
+COPY user-logs.xml /var/lib/neo4j/conf/user-logs.xml
 
 RUN echo '#!/bin/bash\n\
 sed -i "/server.memory.heap.initial_size/d" /var/lib/neo4j/conf/neo4j.conf\n\
