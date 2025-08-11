@@ -4,7 +4,7 @@ set -euo pipefail
 DB_NAME="${NEO4J_DB_NAME:-neo4j}"
 
 if [[ -n "${NEO4J_RESTORE_DUMP_URL:-}" ]]; then
-  if [[ "${NEO4J_FORCE_RESTORE:-false}" == "true" || ! -d "/data/databases/${DB_NAME}" || -z "$(ls -A /data/databases/${DB_NAME}" 2>/dev/null || true) ]]; then
+  if [[ "${NEO4J_FORCE_RESTORE:-false}" == "true" || ! -d "/data/databases/${DB_NAME}" || -z "$(ls -A "/data/databases/${DB_NAME}" 2>/dev/null || true)" ]]; then
     echo ">>> Restoring \"$DB_NAME\" from dump"
     mkdir -p /tmp
     echo ">>> Downloading dump..."
