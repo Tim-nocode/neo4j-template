@@ -114,7 +114,6 @@ ARG HEAP_INITIAL_SIZE="1g"
 ARG HEAP_MAX_SIZE="1g"
 ARG PAGECACHE_SIZE="4g"
 
-# Set environment variables
 ENV NEO4J_AUTH=neo4j/${DB_PASSWORD}
 ENV HEAP_INITIAL_SIZE=${HEAP_INITIAL_SIZE}
 ENV HEAP_MAX_SIZE=${HEAP_MAX_SIZE}
@@ -125,14 +124,15 @@ RUN echo "HEAP_INITIAL_SIZE=${HEAP_INITIAL_SIZE}"
 RUN echo "HEAP_MAX_SIZE=${HEAP_MAX_SIZE}"
 RUN echo "PAGECACHE_SIZE=${PAGECACHE_SIZE}"
 
-# Use the preloaded database from the import stage
+# Устанавливаем curl, чтобы restore-and-run.sh мог скачать дамп
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 COPY --from=neo4j-import /data /data
 
 COPY neo4j.conf /var/lib/neo4j/conf/neo4j.conf
 COPY server-logs.xml /var/lib/neo4j/conf/server-logs.xml
 COPY user-logs.xml /var/lib/neo4j/conf/server-logs.xml
 
-# Script to update Neo4j config
 RUN echo '#!/bin/bash\n\
 sed -i "/server.memory.heap.initial_size/d" /var/lib/neo4j/conf/neo4j.conf\n\
 sed -i "/server.memory.heap.max_size/d" /var/lib/neo4j/conf/neo4j.conf\n\
@@ -146,13 +146,10 @@ echo "Neo4j configuration updated with environment variables"' > /update-config.
 
 RUN /update-config.sh
 
-# ======== ДОбавляем скрипт восстановления из дампа ========
 COPY restore-and-run.sh /usr/local/bin/restore-and-run.sh
 RUN chmod +x /usr/local/bin/restore-and-run.sh
 
-# Expose Neo4j ports
 EXPOSE 7474 7687
 
-# Start Neo4j via restore script
 CMD ["/usr/local/bin/restore-and-run.sh"]
 
