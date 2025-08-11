@@ -19,4 +19,4 @@ else
   echo ">>> NEO4J_RESTORE_DUMP_URL not set; skipping restore"
 fi
 
-exec /docker-entrypoint.sh neo4j
+exec /var/lib/neo4j/bin/docker-entrypoint.sh neo4j
