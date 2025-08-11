@@ -9,8 +9,6 @@ MARKER="/data/.restored_${DB_NAME}"
 log() { echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*"; }
 
 restore_needed() {
-  # Восстанавливаем, если принудительно, если нет каталога БД, если он пуст,
-  # или если нет маркера успешного восстановления.
   if [[ "${FORCE}" == "true" ]]; then return 0; fi
   if [[ ! -d "/data/databases/${DB_NAME}" ]]; then return 0; fi
   if [[ -z "$(ls -A "/data/databases/${DB_NAME}" 2>/dev/null || true)" ]]; then return 0; fi
@@ -27,7 +25,6 @@ if [[ -n "${DUMP_URL}" ]] && restore_needed; then
   log ">>> Loading dump..."
   neo4j-admin database load "${DB_NAME}" --from-path="/tmp" --overwrite-destination=true
 
-  # Маркер — чтобы не перезатирать БД при следующих стартах
   touch "${MARKER}"
   log ">>> Restore completed"
 else
@@ -38,8 +35,8 @@ else
   fi
 fi
 
-# Покажи где лежит бинарь, чисто для проверки
+# Для отладки — где лежит бинарь
 command -v neo4j || true
 
-# Запуск стандартного старта образа (в образах Neo4j это команда 'neo4j')
-exec neo4j
+# Запуск сервера в foreground (правильно для Docker)
+exec neo4j console
